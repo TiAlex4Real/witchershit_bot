@@ -8,8 +8,6 @@ withcershit_texts = ['Ведьмак — говно', 'Ведьмак 3 — ту
 
 nintendo_texts = ['Нинтендо сосёт', 'Свитч хрень, игор нет', 'А сонька круче']
 
-alive_angry_texts = ['Тебе не надоело?', 'Бесишь', 'Охх...', 'С первого раза непонятно?']
-
 alive_pissed_off_texts = ['Сука, падла', 'Где тут дрын, какой-нибудь?!',
                           'Никак вы, блять, не научитесь', 'Вот ссука',
                           'Статус, статус. Хуй те а не статус!', 'Лютик, блять!',
@@ -52,14 +50,9 @@ def handle_message(bot, update):
 def handle_status_command(bot, update):
     user_id = update.message.from_user.id
     chat_id = update.message.chat_id
-    message = 'Живой'
     sqls.alive_update(user_id)
     if not sqls.alive_check_hate_you(user_id):
-        if sqls.alive_check_pissed_off(user_id):
-            message = npr.choice(alive_pissed_off_texts)
-        elif sqls.alive_check_angry(user_id):
-            message = npr.choice(alive_angry_texts)
-        bot.send_message(chat_id=chat_id, text=message)
+        bot.send_message(chat_id=chat_id, text=npr.choice(alive_pissed_off_texts))
 
 
 def handle_audio_command(bot, update):
