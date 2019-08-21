@@ -17,7 +17,6 @@ alive_pissed_off_texts = ['Сука, падла', 'Где тут дрын, ка�
                           'навставляйте им в жопы соломинок',
                           'Ламберт, Ламберт, хер моржовый.\nЛамберт, Ламберт, вредный хуй.']
 
-
 f = open("scripts.sql", "r")
 sqls.init_db(f.read())
 f.close()
@@ -63,11 +62,11 @@ def handle_audio_command(bot, update):
 
 # Telegram API init
 TOKEN = '982144609:AAHK3JxSpQ5BjFLCC_1mpWyPieNixFhB3QQ'
-REQUEST_KWARGS = {
-    'proxy_url': 'socks5://127.0.0.1:9051'
-}
+# REQUEST_KWARGS = {
+#     'proxy_url': 'socks5://127.0.0.1:9051'
+# }
 
-updater = Updater(token=TOKEN, request_kwargs=REQUEST_KWARGS)
+updater = Updater(token=TOKEN)  # request_kwargs=REQUEST_KWARGS)
 dispatcher = updater.dispatcher
 
 statusCommandHandler = CommandHandler('status', handle_status_command)
