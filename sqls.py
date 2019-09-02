@@ -15,6 +15,10 @@ nintendo_update_sql = "INSERT OR REPLACE INTO nintendo_log VALUES(?, CURRENT_TIM
 nintendo_check_sql = "SELECT 1 from nintendo_log where " \
                      "chat_id = ? and last_enc > datetime('now', '-1 hour');"
 
+beautiful_update_sql = "INSERT OR REPLACE INTO beautiful_log VALUES(?, CURRENT_TIMESTAMP);"
+beautiful_check_sql = "SELECT 1 from beautiful_log WHERE " \
+                     "chat_id = ? and last_enc > datetime('now', '-1 week');"
+
 
 def init_db(script_text):
     conn = sqlite3.connect(witcher_db)
@@ -75,6 +79,25 @@ def nintendo_check_on_delay(chat_id):
     with conn:
         cursor = conn.cursor()
         cursor.execute(nintendo_check_sql, [chat_id])
+        res = cursor.fetchone()
+        if res:
+            return True
+        return False
+
+
+def beautiful_update(chat_id):
+    conn = sqlite3.connect(witcher_db)
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute(beautiful_update_sql, [chat_id])
+        conn.commit()
+
+
+def beautiful_check_on_delay(chat_id):
+    conn = sqlite3.connect(witcher_db)
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute(beautiful_check_sql, [chat_id])
         res = cursor.fetchone()
         if res:
             return True

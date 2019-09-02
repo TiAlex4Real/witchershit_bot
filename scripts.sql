@@ -16,3 +16,9 @@ create table if not exists alive_log
     last_enc date,
     counter int default 0
 );
+
+create table if not exists beautiful_log
+(
+	chat_id int primary key,
+	last_enc date
+);
