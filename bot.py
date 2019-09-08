@@ -2,7 +2,7 @@ import os
 import re
 import sys
 import numpy.random as npr
-from telegram.ext import Updater, MessageHandler, CommandHandler, Filters
+from telegram.ext import Updater, MessageHandler, PrefixHandler, Filters
 import sqls
 
 sticker_mode_chat_id = 0
@@ -33,7 +33,8 @@ if not os.environ.get('PYTHONUNBUFFERED'):
 
 
 # Handle messages
-def handle_message(bot, update):
+def handle_message(update, context):
+    bot = context.bot
     chat_id = update.message.chat_id
     mes_id = update.message.message_id
     text = update.message.text
@@ -67,7 +68,8 @@ def handle_message(bot, update):
 
 
 # Handle sticker
-def handle_sticker(bot, update):
+def handle_sticker(update, context):
+    bot = context.bot
     global sticker_mode_chat_id
     chat_id = update.message.chat_id
     if chat_id == sticker_mode_chat_id:
@@ -76,7 +78,8 @@ def handle_sticker(bot, update):
 
 
 # Handle commands
-def handle_status_command(bot, update):
+def handle_status_command(update, context):
+    bot = context.bot
     user_id = update.message.from_user.id
     chat_id = update.message.chat_id
     sqls.alive_update(user_id)
@@ -84,13 +87,15 @@ def handle_status_command(bot, update):
         bot.send_message(chat_id=chat_id, text=npr.choice(alive_pissed_off_texts))
 
 
-def handle_pingo_command(bot, update):
+def handle_pingo_command(update, context):
+    bot = context.bot
     # user_id = update.message.from_user.id
     chat_id = update.message.chat_id
     bot.send_message(chat_id=chat_id, text='pongo')
 
 
-def handle_sticker_command(bot, update):
+def handle_sticker_command(update, context):
+    bot = context.bot
     global sticker_mode_chat_id
     chat_id = update.message.chat_id
     chat_type = update.message.chat.type
@@ -109,15 +114,15 @@ TOKEN = '965449851:AAF9tKfgA50Mrr8paPB4B2BicnbJ8BuPahk'
 updater = Updater(token=TOKEN, use_context=True)  # request_kwargs=REQUEST_KWARGS)
 dispatcher = updater.dispatcher
 
-statusCommandHandler = CommandHandler('status', handle_status_command)
-pingoCommandHandler = CommandHandler('pingo', handle_pingo_command)
-stickerCommandHandler = CommandHandler('sticker', handle_sticker_command)
+statusPrefixHandler = PrefixHandler('/', 'status', handle_status_command)
+pingoPrefixHandler = PrefixHandler('/', 'pingo', handle_pingo_command)
+stickerPrefixHandler = PrefixHandler('/', 'sticker', handle_sticker_command)
 stickerHandler = MessageHandler(Filters.sticker, handle_sticker)
 messageHandler = MessageHandler(Filters.text, handle_message)
 
-dispatcher.add_handler(statusCommandHandler)
-dispatcher.add_handler(pingoCommandHandler)
-dispatcher.add_handler(stickerCommandHandler)
+dispatcher.add_handler(statusPrefixHandler)
+dispatcher.add_handler(pingoPrefixHandler)
+dispatcher.add_handler(stickerPrefixHandler)
 dispatcher.add_handler(stickerHandler)
 dispatcher.add_handler(messageHandler)
 
