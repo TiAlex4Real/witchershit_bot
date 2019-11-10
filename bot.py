@@ -22,7 +22,7 @@ alive_pissed_off_texts = ['Сука, падла', 'Где тут дрын, ка�
                           'Ламберт, Ламберт, хер моржовый.\nЛамберт, Ламберт, вредный хуй.']
 
 # Инициализация таблиц в БД
-f = open("scripts.sql", "r")
+f = open("initdb.sql", "r")
 sqls.init_db(f.read())
 f.close()
 
@@ -45,12 +45,11 @@ def handle_message(update, context):
         sticker_mode_chat_id = 0
     # WitcherShit
     if re.search(r'(?i)(witcher|ведьмак)+', text):
-        if npr.randint(100) > 50:
-            if not sqls.witchershit_check_on_delay(chat_id):
-                bot.send_message(chat_id=chat_id,
-                                 text=npr.choice(withcershit_texts),
-                                 reply_to_message_id=mes_id)
-                sqls.witchershit_update(chat_id)
+        if not sqls.witchershit_check_on_delay(chat_id):
+            bot.send_message(chat_id=chat_id,
+                             text='Ведьмак — говно',
+                             reply_to_message_id=mes_id)
+            sqls.witchershit_update(chat_id)
     # Nintendo
     if re.search(r'(?i)(switch|сви(т)?ч|nintendo|нинтендо)+', text):
         if npr.randint(100) > 50:
