@@ -1,43 +1,34 @@
 import sqlite3
+import codecs
 
-witcher_db = "witchershit.db"
-
-witchershit_update_sql = "INSERT OR REPLACE INTO witcher_log VALUES(?, CURRENT_TIMESTAMP);"
-witchershit_check_sql = "SELECT 1 from witcher_log where " \
-                        "chat_id = ? and last_enc > datetime('now', '-1 hour');"
-
-alive_update_sql = "INSERT OR REPLACE INTO alive_log VALUES(?, CURRENT_TIMESTAMP, " \
-                   "(COALESCE((select counter + 1 from alive_log where user_id = ? " \
-                   "and last_enc > datetime('now', '-3 hour')), 0)));"
-alive_check_hate_you_sql = "SELECT 1 from alive_log where user_id = ? and counter > 0"
-
-nintendo_update_sql = "INSERT OR REPLACE INTO nintendo_log VALUES(?, CURRENT_TIMESTAMP);"
-nintendo_check_sql = "SELECT 1 from nintendo_log where " \
-                     "chat_id = ? and last_enc > datetime('now', '-1 hour');"
-
-beautiful_update_sql = "INSERT OR REPLACE INTO beautiful_log VALUES(?, CURRENT_TIMESTAMP);"
-beautiful_check_sql = "SELECT 1 from beautiful_log WHERE " \
-                     "chat_id = ? and last_enc > datetime('now', '-1 week');"
+witchershit_db = "witchershit.db"
 
 
-def init_db(script_text):
-    conn = sqlite3.connect(witcher_db)
+def init_db():
+    conn = sqlite3.connect(witchershit_db)
     with conn:
         cursor = conn.cursor()
-        cursor.executescript(script_text)
+        f = codecs.open("initdb.sql", "r", "utf_8_sig")
+        cursor.executescript(f.read())
+        f.close()
         conn.commit()
 
 
+witchershit_update_sql = "INSERT OR REPLACE INTO witchershit_log VALUES(?, CURRENT_TIMESTAMP);"
+witchershit_check_sql = "SELECT 1 from witchershit_log where " \
+                        "chat_id = ? and last_enc > datetime('now', '-1 hour');"
+
+
 def witchershit_update(chat_id):
-    conn = sqlite3.connect(witcher_db)
+    conn = sqlite3.connect(witchershit_db)
     with conn:
         cursor = conn.cursor()
         cursor.execute(witchershit_update_sql, [chat_id])
         conn.commit()
 
 
-def witchershit_check_on_delay(chat_id):
-    conn = sqlite3.connect(witcher_db)
+def witchershit_check(chat_id):
+    conn = sqlite3.connect(witchershit_db)
     with conn:
         cursor = conn.cursor()
         cursor.execute(witchershit_check_sql, [chat_id])
@@ -47,35 +38,61 @@ def witchershit_check_on_delay(chat_id):
         return False
 
 
-def alive_update(user_id):
-    conn = sqlite3.connect(witcher_db)
-    with conn:
-        cursor = conn.cursor()
-        cursor.execute(alive_update_sql, [user_id, user_id])
-        conn.commit()
+status_update_sql = "INSERT INTO status_log VALUES(?, ?, CURRENT_TIMESTAMP)"
+status_get_phrase_sql = "SELECT phrase_id, text FROM status_phrases " \
+                        "WHERE phrase_id NOT IN (SELECT phrase_id FROM status_log" \
+                        "                        WHERE chat_id = ? ORDER BY encounter LIMIT 5) " \
+                        "ORDER BY RANDOM() LIMIT 1;"
+status_check_sql = "SELECT 1 FROM status_log WHERE encounter > datetime('now', '-1 hour' ) AND chat_id = ?"
 
 
-def alive_check_hate_you(user_id):
-    conn = sqlite3.connect(witcher_db)
+def status_get_phrase_update(chat_id):
+    conn = sqlite3.connect(witchershit_db)
     with conn:
         cursor = conn.cursor()
-        cursor.execute(alive_check_hate_you_sql, [user_id])
+        cursor.execute(status_get_phrase_sql, [chat_id])
+        res = cursor.fetchone()
+        if res:
+            cursor.execute(status_update_sql, [chat_id, res[0]])
+            conn.commit()
+            return res[1]
+    return False
+
+
+def status_check(chat_id):
+    conn = sqlite3.connect(witchershit_db)
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute(status_check_sql, [chat_id])
         res = cursor.fetchone()
         if res:
             return True
         return False
 
 
-def nintendo_update(chat_id):
-    conn = sqlite3.connect(witcher_db)
+nintendo_update_sql = "INSERT INTO nintendo_log VALUES(?, ?, CURRENT_TIMESTAMP)"
+nintendo_get_phrase_sql = "SELECT phrase_id, text FROM nintendo_phrases " \
+                        "WHERE phrase_id NOT IN (SELECT phrase_id FROM nintendo_log" \
+                        "                        WHERE chat_id = ? ORDER BY encounter LIMIT 3) " \
+                        "ORDER BY RANDOM() LIMIT 1;"
+nintendo_check_sql = "SELECT 1 FROM nintendo_log WHERE encounter > datetime('now', '-3 day' ) AND chat_id = ?"
+
+
+def nintendo_get_phrase_update(chat_id):
+    conn = sqlite3.connect(witchershit_db)
     with conn:
         cursor = conn.cursor()
-        cursor.execute(nintendo_update_sql, [chat_id])
-        conn.commit()
+        cursor.execute(nintendo_get_phrase_sql, [chat_id])
+        res = cursor.fetchone()
+        if res:
+            cursor.execute(nintendo_update_sql, [chat_id, res[0]])
+            conn.commit()
+            return res[1]
+    return False
 
 
-def nintendo_check_on_delay(chat_id):
-    conn = sqlite3.connect(witcher_db)
+def nintendo_check(chat_id):
+    conn = sqlite3.connect(witchershit_db)
     with conn:
         cursor = conn.cursor()
         cursor.execute(nintendo_check_sql, [chat_id])
@@ -85,8 +102,13 @@ def nintendo_check_on_delay(chat_id):
         return False
 
 
+beautiful_update_sql = "INSERT OR REPLACE INTO beautiful_log VALUES(?, CURRENT_TIMESTAMP);"
+beautiful_check_sql = "SELECT 1 from beautiful_log WHERE " \
+                     "chat_id = ? and last_enc > datetime('now', '-1 week');"
+
+
 def beautiful_update(chat_id):
-    conn = sqlite3.connect(witcher_db)
+    conn = sqlite3.connect(witchershit_db)
     with conn:
         cursor = conn.cursor()
         cursor.execute(beautiful_update_sql, [chat_id])
@@ -94,7 +116,7 @@ def beautiful_update(chat_id):
 
 
 def beautiful_check_on_delay(chat_id):
-    conn = sqlite3.connect(witcher_db)
+    conn = sqlite3.connect(witchershit_db)
     with conn:
         cursor = conn.cursor()
         cursor.execute(beautiful_check_sql, [chat_id])
