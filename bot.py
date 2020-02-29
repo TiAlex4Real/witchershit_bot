@@ -15,9 +15,11 @@ witchershit_reminder_texts = ['Держу вас в тонусе', 'Просто
 sqls.init_db()
 
 # Вывод принтов в лог-файл, если не под PyCharm
-if not os.environ.get('PYTHONUNBUFFERED'):
-    sys.stdout = open("log.txt", "w")
-    sys.stderr = open("err.txt", "w")
+# if not os.environ.get('PYTHONUNBUFFERED'):
+#    sys.stdout = open("log.txt", "w")
+#    sys.stderr = open("err.txt", "w")
+
+print('started')
 
 # Telegram API init
 ft = open("witchershit_bot.token", "r")
@@ -42,7 +44,9 @@ def callback_witchershit_reminder(context):
     global reminder_jobs
     try:
         del reminder_jobs[chat_id]
-        context.bot.send_message(chat_id=149352641, text=str(chat_id) + ': reminder succeeded')
+        info = str(chat_id) + ': reminder succeeded'
+        print(info)
+        # context.bot.send_message(chat_id=149352641, text=info)
     except KeyError:
         pass
 
@@ -75,15 +79,18 @@ def handle_message(update, context):
         job = reminder_jobs[chat_id]
         job.schedule_removal()
         del reminder_jobs[chat_id]
-        bot.send_message(chat_id=149352641, text=str(chat_id) + ': reminder deleted')
+        info = str(chat_id) + ': reminder deleted'
+        print(info)
+        # bot.send_message(chat_id=149352641, text=info)
     except KeyError:
         pass
     if not sqls.witchershit_check(chat_id):
-        if npr.randint(100) > 80:
+        if npr.randint(100) > 90:
             delay = 3600 + npr.randint(32400) + 3600  # 1 час + от 0 до 9 часов
             # delay = 5 + npr.randint(10)
             info = str(chat_id) + ': reminder set for ' + str(delay) + ' sec, ' + str(update.message.chat.title)
-            bot.send_message(chat_id=149352641, text=info)
+            print(info)
+            # bot.send_message(chat_id=149352641, text=info)
             reminder_jobs[chat_id] = job_queue.run_once(callback_witchershit_reminder, delay, context=chat_id)
     # Nintendo
     if re.search(r'(?i)(switch|сви(т)?ч|nintendo|нинтендо)+', text):

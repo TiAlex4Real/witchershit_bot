@@ -16,7 +16,7 @@ def init_db():
 
 witchershit_update_sql = "INSERT OR REPLACE INTO witchershit_log VALUES(?, CURRENT_TIMESTAMP);"
 witchershit_check_sql = "SELECT 1 from witchershit_log where " \
-                        "chat_id = ? and last_enc > datetime('now', '-1 hour');"
+                        "chat_id = ? and last_enc > datetime('now', '-1 day');"
 
 
 def witchershit_update(chat_id):

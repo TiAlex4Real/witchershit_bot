@@ -2,3 +2,4 @@ __pycache__/
 err.txt
 log.txt
 witchershit.db
+*.token
