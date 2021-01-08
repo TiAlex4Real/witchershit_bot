@@ -124,3 +124,28 @@ def beautiful_check_on_delay(chat_id):
         if res:
             return True
         return False
+
+        
+miss_me_update_sql = "INSERT OR REPLACE INTO miss_me_log VALUES(?, CURRENT_TIMESTAMP);"
+miss_me_check_sql = "SELECT 1 from miss_me_log WHERE " \
+                     "chat_id = ? and last_enc > datetime('now', '-1 month');"
+
+
+def miss_me_update(chat_id):
+    conn = sqlite3.connect(witchershit_db)
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute(miss_me_update_sql, [chat_id])
+        conn.commit()
+
+
+def miss_me_check(chat_id):
+    conn = sqlite3.connect(witchershit_db)
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute(miss_me_check_sql, [chat_id])
+        res = cursor.fetchone()
+        if res:
+            return True
+        return False
+        

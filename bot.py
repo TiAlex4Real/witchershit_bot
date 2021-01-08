@@ -23,7 +23,6 @@ print('started')
 
 # Telegram API init
 ft = open("witchershit_bot.token", "r")
-# ft = open("witchershit_test_bot.token", "r")
 TOKEN = ft.read()
 ft.close()
 
@@ -106,6 +105,11 @@ def handle_message(update, context):
             bot.send_sticker(chat_id=chat_id,
                              sticker='CAADAgADHAUAAnKq5gTUAstCxSdgJhYE')
             sqls.beautiful_update(chat_id)
+    # Miss Me
+    if not sqls.miss_me_check(chat_id):
+        bot.send_photo(chat_id, photo=open('miss_me.jpg', 'rb'))
+    # Miss Me updates every time bot receives message
+    sqls.miss_me_update(chat_id)
 
 
 # Handle sticker
